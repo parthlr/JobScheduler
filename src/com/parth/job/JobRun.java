@@ -8,7 +8,8 @@ public class JobRun {
 		INACTIVE,
 		RUNNING,
 		SUCCESS,
-		FAILED
+		FAILED,
+		TERMINATED
 	}
 	
 	int runID;
