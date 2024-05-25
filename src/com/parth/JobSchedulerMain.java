@@ -16,14 +16,16 @@ public class JobSchedulerMain {
 		Comparator<JobRun> jobComparator = new JobComparator();
 		PriorityQueue<JobRun> jobQueue = new PriorityQueue<JobRun>(jobComparator);
 		
-		List<Job> jobs = JobUtil.importJobsFromFile("test_jobs.json");
+		List<Job> jobs = JobUtil.importJobsFromFile("C:\\Users\\parth\\OneDrive\\Documents\\test_jobs.json");
 		
 		for (int i = 0; i < jobs.size(); i++) {
 			Job job = jobs.get(i);
 			
-			JobRun run = new JobRun(i, job, job.getStartDate());
+			JobRun run = new JobRun(i, job);
 			
 			jobQueue.add(run);
+			
+			System.out.println(run.getJob().getName() + " current status is " + run.getStatus());
 		}
 		
 		while (jobQueue.size() > 0) {
@@ -32,10 +34,25 @@ public class JobSchedulerMain {
 			Date currentTime = new Date();
 			
 			if (currentTime.after(nextRun.getJob().getStartDate())) {
+				nextRun.setStartTime(currentTime);
+				
 				System.out.println("---------------------");
 				System.out.println("Starting Job: " + nextRun.getJob().getName());
+				System.out.println("Start Time: " + nextRun.getStartTime().toString());
+				
+				nextRun.setStatus(JobRun.RunStatus.RUNNING);
+				System.out.println("Job Status: " + nextRun.getStatus());
+				
 				System.out.println(nextRun.getJob().getProcess());
+				
+				Date endTime = new Date();
+				nextRun.setEndTime(endTime);
+				
 				System.out.println("Finished Job: " + nextRun.getJob().getName());
+				System.out.println("End Time: " + nextRun.getEndTime().toString());
+				
+				nextRun.setStatus(JobRun.RunStatus.SUCCESS);
+				System.out.println("Job Status: " + nextRun.getStatus());
 				
 				jobQueue.poll();
 			}
