@@ -10,12 +10,14 @@ public class Job {
 	String name;
 	Date startDate;
 	String process;
+	String logPath;
 	
-	public Job(int id, String name, String startTime, String process) {
+	public Job(int id, String name, String startTime, String process, String logPath) {
 		this.id = id;
 		this.name = name;
 		this.startDate = Util.stringToDate(startTime);
 		this.process = process;
+		this.logPath = logPath;
 	}
 	
 	public int getID() {
@@ -32,6 +34,10 @@ public class Job {
 	
 	public String getProcess() {
 		return process;
+	}
+	
+	public String getLogPath() {
+		return logPath;
 	}
 
 }

@@ -63,28 +63,38 @@ public class JobRunner {
 	}
 	
 	private void runJob(JobRun run) {
-		System.out.println("---------------------");
-		System.out.println("Starting Job: " + run.getJob().getName());
-		
 		Date startTime = new Date();
 		run.setStartTime(startTime);
 		run.setStatus(JobRun.RunStatus.RUNNING);
+		run.setOutLogPath(JobUtil.getFullLogPath(startTime, run.getJob()));
 		
-		System.out.println("Start Time: " + run.getStartTime().toString());
+		JobUtil.logInfo(run.getLogStream(), "---------------------");
+		JobUtil.logInfo(run.getLogStream(), "Starting Job: " + run.getJob().getName());
+		JobUtil.logInfo(run.getLogStream(), "Start Time: " + run.getStartTime().toString());
 		
 		try {
-			System.out.println(run.getJob().getProcess());
+			JobUtil.logInfo(run.getLogStream(), run.getJob().getProcess());
 			
 			Date endTime = new Date();
 			run.setEndTime(endTime);
 			run.setStatus(JobRun.RunStatus.SUCCESS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			StackTraceElement[] stack = e.getStackTrace();
+			String errorString = "";
+			
+			for (StackTraceElement element : stack) {
+				errorString += element.toString() + "\n";
+			}
+			
+			JobUtil.logError(run.getLogStream(), errorString);
 			
 			Date endTime = new Date();
 			run.setEndTime(endTime);
 			run.setStatus(JobRun.RunStatus.FAILED);
 		}
+		
+		JobUtil.logInfo(run.getLogStream(), "End Time: " + run.getEndTime().toString());
+		JobUtil.logInfo(run.getLogStream(), "Run Status: " + run.getStatus());
 	}
 	
 	public void start() {

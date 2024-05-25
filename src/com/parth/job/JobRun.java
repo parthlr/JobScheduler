@@ -1,5 +1,7 @@
 package com.parth.job;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.Date;
 
 public class JobRun {
@@ -17,6 +19,8 @@ public class JobRun {
 	Date startTime;
 	Date endTime;
 	RunStatus status;
+	
+	PrintStream outLog;
 	
 	public JobRun(int runID, Job job) {
 		this.runID = runID;
@@ -64,6 +68,18 @@ public class JobRun {
 	
 	public void setStatus(RunStatus newStatus) {
 		status = newStatus;
+	}
+	
+	public void setOutLogPath(String path) {
+		try {
+			outLog = new PrintStream(path);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public PrintStream getLogStream() {
+		return outLog;
 	}
 
 }
