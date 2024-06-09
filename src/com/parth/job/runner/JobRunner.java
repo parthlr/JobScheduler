@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import com.parth.concurrency.JobTask;
+import com.parth.concurrency.JobThreadPool;
 import com.parth.job.Job;
 import com.parth.job.JobRun;
 import com.parth.job.comparator.JobComparator;
@@ -13,17 +15,23 @@ import com.parth.util.JobUtil;
 
 public class JobRunner {
 	
+	JobThreadPool pool;
+	
 	PriorityQueue<JobRun> jobQueue;
 	List<JobRun> runHistory;
 	
 	int nextRunID;
 	
-	public JobRunner() {
+	public JobRunner(JobThreadPool pool) {
+		this.pool = pool;
+		
 		Comparator<JobRun> jobComparator = new JobComparator();
 		jobQueue = new PriorityQueue<JobRun>(jobComparator);
 		runHistory = new ArrayList<JobRun>();
 		
 		nextRunID = 0;
+		
+		System.out.println("Started job runner");
 	}
 	
 	public void initJobs(String configPath) {
@@ -63,38 +71,7 @@ public class JobRunner {
 	}
 	
 	private void runJob(JobRun run) {
-		Date startTime = new Date();
-		run.setStartTime(startTime);
-		run.setStatus(JobRun.RunStatus.RUNNING);
-		run.setOutLogPath(JobUtil.getFullLogPath(startTime, run.getJob()));
-		
-		JobUtil.logInfo(run.getLogStream(), "---------------------");
-		JobUtil.logInfo(run.getLogStream(), "Starting Job: " + run.getJob().getName());
-		JobUtil.logInfo(run.getLogStream(), "Start Time: " + run.getStartTime().toString());
-		
-		try {
-			JobUtil.logInfo(run.getLogStream(), run.getJob().getProcess());
-			
-			Date endTime = new Date();
-			run.setEndTime(endTime);
-			run.setStatus(JobRun.RunStatus.SUCCESS);
-		} catch (Exception e) {
-			StackTraceElement[] stack = e.getStackTrace();
-			String errorString = "";
-			
-			for (StackTraceElement element : stack) {
-				errorString += element.toString() + "\n";
-			}
-			
-			JobUtil.logError(run.getLogStream(), errorString);
-			
-			Date endTime = new Date();
-			run.setEndTime(endTime);
-			run.setStatus(JobRun.RunStatus.FAILED);
-		}
-		
-		JobUtil.logInfo(run.getLogStream(), "End Time: " + run.getEndTime().toString());
-		JobUtil.logInfo(run.getLogStream(), "Run Status: " + run.getStatus());
+		pool.submitTask(new JobTask(run));
 	}
 	
 	public void start() {
@@ -108,6 +85,7 @@ public class JobRunner {
 				jobQueue.poll();
 			}
 		}
+		System.out.println("Job runner ended");
 	}
 
 }
