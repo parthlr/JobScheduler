@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -23,7 +24,8 @@ public class JobUtil {
 			JSONObject jobsJson = (JSONObject) parser.parse(new FileReader(path));
 			JSONArray jobs = (JSONArray) jobsJson.get("jobs");
 			
-			List<Job> jobList = new ArrayList<Job>();
+			List<Job> jobHeads = new ArrayList<Job>();
+			HashMap<String, Job> jobList = new HashMap<String, Job>();
 			
 			for (Object jobObj : jobs) {
 				JSONObject jsonJob = (JSONObject) jobObj;
@@ -36,10 +38,19 @@ public class JobUtil {
 				
 				Job job = new Job(jobID.intValue(), jobName, jobStartTime, jobProcess, jobLogPath);
 				
-				jobList.add(job);
+				String jobPredecessor = (String) jsonJob.get("predecessor_job");
+				if (jobPredecessor != null) {
+					Job predecessor = jobList.get(jobPredecessor);
+					predecessor.setSuccessorJob(job);
+				} else {
+					jobHeads.add(job);
+				}
+				
+				//jobList.add(job);
+				jobList.put(jobName, job);
 			}
 			
-			return jobList;
+			return jobHeads;
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {

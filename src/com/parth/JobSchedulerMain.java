@@ -8,7 +8,7 @@ public class JobSchedulerMain {
 	public static void main(String[] args) {
 		JobThreadPool pool = new JobThreadPool(3, 3);
 		JobRunner runner = new JobRunner(pool);
-		runner.initJobs("C:\\Users\\parth\\OneDrive\\Documents\\test_jobs.json");
+		runner.initJobs("test_jobs.json");
 		
 		runner.start();
 	}
